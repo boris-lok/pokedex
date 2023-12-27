@@ -1,4 +1,3 @@
 mod domain;
 
-fn main() {
-}
+fn main() {}
