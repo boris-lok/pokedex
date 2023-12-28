@@ -3,13 +3,13 @@ mod health;
 pub fn serve(url: &str) {
     rouille::start_server(url, move |req| {
         router!(req,
-           (GET) (/health) => {
-               health::serve()
-           },
-           _ => {
-               rouille::Response::from(Status::NotFound)
-           }
-       )
+            (GET) (/health) => {
+                health::serve()
+            },
+            _ => {
+                rouille::Response::from(Status::NotFound)
+            }
+        )
     });
 }
 

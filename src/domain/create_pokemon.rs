@@ -15,11 +15,15 @@ enum Response {
 }
 
 fn execute(repo: &mut dyn Repository, req: Request) -> Response {
-    match (PokemonNumber::try_from(req.number), PokemonName::try_from(req.name), PokemonTypes::try_from(req.types)) {
+    match (
+        PokemonNumber::try_from(req.number),
+        PokemonName::try_from(req.name),
+        PokemonTypes::try_from(req.types),
+    ) {
         (Ok(id), Ok(name), Ok(types)) => match repo.insert(id, name, types) {
             Insert::Ok(id) => Response::Ok(id.into()),
             Insert::Conflict => Response::Conflict,
-            Insert::Error => Response::Error
+            Insert::Error => Response::Error,
         },
         _ => Response::BadRequest,
     }
@@ -106,7 +110,7 @@ mod test {
         let res = execute(&mut repo, req);
         match res {
             Response::Error => {}
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 }

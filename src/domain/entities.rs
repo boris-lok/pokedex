@@ -1,5 +1,5 @@
-use std::convert::Infallible;
 use crate::domain::entities::PokemonType::{Electric, Fire};
+use std::convert::Infallible;
 
 #[derive(PartialEq, Clone)]
 pub struct PokemonNumber(u16);
@@ -49,8 +49,8 @@ impl TryFrom<Vec<String>> for PokemonTypes {
         let mut pts = vec![];
         for t in val.iter() {
             match PokemonType::try_from(String::from(t)) {
-                Ok(pt) => { pts.push(pt) }
-                Err(_) => return Err(())
+                Ok(pt) => pts.push(pt),
+                Err(_) => return Err(()),
             }
         }
 
@@ -70,7 +70,7 @@ impl TryFrom<String> for PokemonType {
         match val.as_str() {
             "Electric" => Ok(Electric),
             "Fire" => Ok(Fire),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }

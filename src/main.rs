@@ -1,6 +1,6 @@
+mod api;
 mod domain;
 mod repositories;
-mod api;
 
 #[macro_use]
 extern crate rouille;
