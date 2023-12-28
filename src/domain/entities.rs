@@ -1,6 +1,7 @@
 use std::convert::Infallible;
-use crate::domain::entities::PokemonType::Electric;
+use crate::domain::entities::PokemonType::{Electric, Fire};
 
+#[derive(PartialEq, Clone)]
 pub struct PokemonNumber(u16);
 
 impl TryFrom<u16> for PokemonNumber {
@@ -59,6 +60,7 @@ impl TryFrom<Vec<String>> for PokemonTypes {
 
 enum PokemonType {
     Electric,
+    Fire,
 }
 
 impl TryFrom<String> for PokemonType {
@@ -67,7 +69,24 @@ impl TryFrom<String> for PokemonType {
     fn try_from(val: String) -> Result<Self, Self::Error> {
         match val.as_str() {
             "Electric" => Ok(Electric),
+            "Fire" => Ok(Fire),
             _ => Err(())
+        }
+    }
+}
+
+pub struct Pokemon {
+    pub number: PokemonNumber,
+    name: PokemonName,
+    types: PokemonTypes,
+}
+
+impl Pokemon {
+    pub fn new(number: PokemonNumber, name: PokemonName, types: PokemonTypes) -> Self {
+        Self {
+            number,
+            name,
+            types,
         }
     }
 }
