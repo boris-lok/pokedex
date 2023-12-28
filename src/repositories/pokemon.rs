@@ -25,7 +25,7 @@ impl InMemoryRepository {
         }
     }
 
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn with_error(self) -> Self {
         Self {
             error: true,
