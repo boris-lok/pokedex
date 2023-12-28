@@ -398,6 +398,8 @@ name = "pokedex"
 version = "0.1.0"
 dependencies = [
  "rouille",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
