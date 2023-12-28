@@ -1,5 +1,4 @@
 use crate::domain::entities::PokemonType::{Electric, Fire};
-use std::convert::Infallible;
 
 #[derive(PartialEq, Clone)]
 pub struct PokemonNumber(u16);
@@ -32,7 +31,7 @@ impl TryFrom<String> for PokemonName {
             return Err(());
         }
 
-        return Ok(Self(val));
+        Ok(Self(val))
     }
 }
 
@@ -75,6 +74,7 @@ impl TryFrom<String> for PokemonType {
     }
 }
 
+#[allow(dead_code)]
 pub struct Pokemon {
     pub number: PokemonNumber,
     name: PokemonName,

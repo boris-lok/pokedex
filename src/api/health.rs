@@ -1,4 +1,3 @@
-use rouille;
 use serde::Serialize;
 
 #[derive(Serialize)]
