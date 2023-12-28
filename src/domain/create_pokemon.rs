@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::domain::entities::{PokemonName, PokemonNumber, PokemonTypes};
-use crate::repositories::pokemon::{Insert, Repository};
+use crate::repositories::pokemon::{InsertError, Repository};
 
 pub struct Request {
     pub number: u16,
@@ -9,25 +9,24 @@ pub struct Request {
     pub types: Vec<String>,
 }
 
-pub enum Response {
-    Ok(u16),
+pub enum Error {
     BadRequest,
     Conflict,
-    Error,
+    Unknown,
 }
 
-pub fn execute(repo: Arc<dyn Repository>, req: Request) -> Response {
+pub fn execute(repo: Arc<dyn Repository>, req: Request) -> Result<u16, Error> {
     match (
         PokemonNumber::try_from(req.number),
         PokemonName::try_from(req.name),
         PokemonTypes::try_from(req.types),
     ) {
         (Ok(id), Ok(name), Ok(types)) => match repo.insert(id, name, types) {
-            Insert::Ok(id) => Response::Ok(id.into()),
-            Insert::Conflict => Response::Conflict,
-            Insert::Error => Response::Error,
+            Ok(id) => Ok(id.into()),
+            Err(InsertError::Conflict) => Err(Error::Conflict),
+            Err(InsertError::Unknown) => Err(Error::Unknown),
         },
-        _ => Response::BadRequest,
+        _ => Err(Error::BadRequest),
     }
 }
 
@@ -49,7 +48,7 @@ mod test {
         let res = execute(repo, req);
 
         match res {
-            Response::Ok(n) => {
+            Ok(n) => {
                 assert_eq!(n, number)
             }
             _ => unreachable!(),
@@ -68,7 +67,7 @@ mod test {
         let res = execute(repo, req);
 
         match res {
-            Response::BadRequest => {}
+            Err(Error::BadRequest) => {}
             _ => unreachable!(),
         }
     }
@@ -81,7 +80,7 @@ mod test {
         let name = PokemonName::try_from("Pikachu".to_string()).unwrap();
         let types = PokemonTypes::try_from(vec!["Electric".to_string()]).unwrap();
         let repo = Arc::new(InMemoryRepository::new());
-        repo.insert(number, name, types);
+        let _ = repo.insert(number, name, types);
 
         // Act
         // create a Pokemon with the same number.
@@ -94,7 +93,7 @@ mod test {
 
         // Assert
         match res {
-            Response::Conflict => {}
+            Err(Error::Conflict) => {}
             _ => unreachable!(),
         }
     }
@@ -111,7 +110,7 @@ mod test {
 
         let res = execute(repo, req);
         match res {
-            Response::Error => {}
+            Err(Error::Unknown) => {}
             _ => unreachable!(),
         }
     }

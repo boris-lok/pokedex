@@ -2,14 +2,18 @@ use std::sync::Mutex;
 
 use crate::domain::entities::{Pokemon, PokemonName, PokemonNumber, PokemonTypes};
 
-pub enum Insert {
-    Ok(PokemonNumber),
+pub enum InsertError {
     Conflict,
-    Error,
+    Unknown,
 }
 
 pub trait Repository: Send + Sync {
-    fn insert(&self, number: PokemonNumber, name: PokemonName, types: PokemonTypes) -> Insert;
+    fn insert(
+        &self,
+        number: PokemonNumber,
+        name: PokemonName,
+        types: PokemonTypes,
+    ) -> Result<PokemonNumber, InsertError>;
 }
 
 pub struct InMemoryRepository {
@@ -35,22 +39,27 @@ impl InMemoryRepository {
 }
 
 impl Repository for InMemoryRepository {
-    fn insert(&self, number: PokemonNumber, name: PokemonName, types: PokemonTypes) -> Insert {
+    fn insert(
+        &self,
+        number: PokemonNumber,
+        name: PokemonName,
+        types: PokemonTypes,
+    ) -> Result<PokemonNumber, InsertError> {
         if self.error {
-            return Insert::Error;
+            return Err(InsertError::Unknown);
         }
 
         let mut lock = match self.data.lock() {
             Ok(lock) => lock,
-            Err(_) => return Insert::Error,
+            Err(_) => return Err(InsertError::Unknown),
         };
 
         if lock.iter().any(|pokemon| pokemon.number == number) {
-            return Insert::Conflict;
+            return Err(InsertError::Conflict);
         }
 
         let number_clone = number.clone();
         lock.push(Pokemon::new(number_clone, name, types));
-        Insert::Ok(number)
+        Ok(number)
     }
 }

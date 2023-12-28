@@ -27,9 +27,9 @@ pub fn serve(repo: Arc<dyn Repository>, req: &rouille::Request) -> rouille::Resp
     };
 
     match create_pokemon::execute(repo, req) {
-        create_pokemon::Response::Ok(number) => rouille::Response::json(&Response { number }),
-        create_pokemon::Response::BadRequest => rouille::Response::from(Status::BadRequest),
-        create_pokemon::Response::Conflict => rouille::Response::from(Status::Conflict),
-        create_pokemon::Response::Error => rouille::Response::from(Status::InternalServerError),
+        Ok(number) => rouille::Response::json(&Response { number }),
+        Err(create_pokemon::Error::BadRequest) => rouille::Response::from(Status::BadRequest),
+        Err(create_pokemon::Error::Conflict) => rouille::Response::from(Status::Conflict),
+        Err(create_pokemon::Error::Unknown) => rouille::Response::from(Status::InternalServerError),
     }
 }
