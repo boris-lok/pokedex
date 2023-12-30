@@ -3,6 +3,13 @@ use crate::domain::entities::PokemonType::{Electric, Fire};
 #[derive(PartialEq, Clone)]
 pub struct PokemonNumber(u16);
 
+#[cfg(test)]
+impl PokemonNumber {
+    pub fn pikachu() -> Self {
+        Self(25)
+    }
+}
+
 impl TryFrom<u16> for PokemonNumber {
     type Error = ();
 
@@ -24,6 +31,21 @@ impl From<PokemonNumber> for u16 {
 #[derive(Clone)]
 pub struct PokemonName(String);
 
+#[cfg(test)]
+impl PokemonName {
+    pub fn pikachu() -> Self {
+        Self(String::from("Pikachu"))
+    }
+
+    pub fn charmader() -> Self {
+        Self(String::from("Charmander"))
+    }
+
+    pub fn empty() -> Self {
+        Self(String::from(""))
+    }
+}
+
 impl TryFrom<String> for PokemonName {
     type Error = ();
 
@@ -44,6 +66,17 @@ impl From<PokemonName> for String {
 
 #[derive(Clone)]
 pub struct PokemonTypes(Vec<PokemonType>);
+
+#[cfg(test)]
+impl PokemonTypes {
+    pub fn pikachu() -> Self {
+        Self(vec![PokemonType::Electric])
+    }
+
+    pub fn charmander() -> Self {
+        Self(vec![PokemonType::Fire])
+    }
+}
 
 impl TryFrom<Vec<String>> for PokemonTypes {
     type Error = ();
