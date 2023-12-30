@@ -15,14 +15,24 @@ pub enum Error {
     Unknown,
 }
 
-pub fn execute(repo: Arc<dyn Repository>, req: Request) -> Result<u16, Error> {
+pub struct InsertResponse {
+    pub number: u16,
+    pub name: String,
+    pub types: Vec<String>,
+}
+
+pub fn execute(repo: Arc<dyn Repository>, req: Request) -> Result<InsertResponse, Error> {
     match (
         PokemonNumber::try_from(req.number),
         PokemonName::try_from(req.name),
         PokemonTypes::try_from(req.types),
     ) {
         (Ok(id), Ok(name), Ok(types)) => match repo.insert(id, name, types) {
-            Ok(id) => Ok(id.into()),
+            Ok(pokemon) => Ok(InsertResponse {
+                number: u16::from(pokemon.number),
+                name: String::from(pokemon.name),
+                types: Vec::<String>::from(pokemon.types)
+            }),
             Err(InsertError::Conflict) => Err(Error::Conflict),
             Err(InsertError::Unknown) => Err(Error::Unknown),
         },
@@ -48,8 +58,14 @@ mod test {
         let res = execute(repo, req);
 
         match res {
-            Ok(n) => {
-                assert_eq!(n, number)
+            Ok(InsertResponse {
+                number,
+                name,
+                types,
+            }) => {
+                assert_eq!(number, 25);
+                assert_eq!(name, String::from("Pikachu"));
+                assert_eq!(types, vec![String::from("Electric")])
             }
             _ => unreachable!(),
         }

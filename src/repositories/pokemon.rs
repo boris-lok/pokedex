@@ -13,7 +13,7 @@ pub trait Repository: Send + Sync {
         number: PokemonNumber,
         name: PokemonName,
         types: PokemonTypes,
-    ) -> Result<PokemonNumber, InsertError>;
+    ) -> Result<Pokemon, InsertError>;
 }
 
 pub struct InMemoryRepository {
@@ -44,7 +44,7 @@ impl Repository for InMemoryRepository {
         number: PokemonNumber,
         name: PokemonName,
         types: PokemonTypes,
-    ) -> Result<PokemonNumber, InsertError> {
+    ) -> Result<Pokemon, InsertError> {
         if self.error {
             return Err(InsertError::Unknown);
         }
@@ -59,7 +59,8 @@ impl Repository for InMemoryRepository {
         }
 
         let number_clone = number.clone();
-        lock.push(Pokemon::new(number_clone, name, types));
-        Ok(number)
+        let pokemon = Pokemon::new(number_clone, name, types);
+        lock.push(pokemon.clone());
+        Ok(pokemon)
     }
 }
