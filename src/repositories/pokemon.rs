@@ -11,6 +11,11 @@ pub enum RetrieveAllError {
     Unknown,
 }
 
+pub enum RetrieveError {
+    Unknown,
+    NotFound,
+}
+
 pub trait Repository: Send + Sync {
     fn insert(
         &self,
@@ -20,6 +25,8 @@ pub trait Repository: Send + Sync {
     ) -> Result<Pokemon, InsertError>;
 
     fn fetch_all(&self) -> Result<Vec<Pokemon>, RetrieveAllError>;
+
+    fn fetch_one(&self, number: PokemonNumber) -> Result<Pokemon, RetrieveError>;
 }
 
 pub struct InMemoryRepository {
@@ -83,5 +90,21 @@ impl Repository for InMemoryRepository {
         let mut pokemons = lock.to_vec();
         pokemons.sort_by(|a, b| a.number.cmp(&b.number));
         Ok(pokemons)
+    }
+
+    fn fetch_one(&self, number: PokemonNumber) -> Result<Pokemon, RetrieveError> {
+        if self.error {
+            return Err(RetrieveError::Unknown);
+        }
+
+        let lock = match self.data.lock() {
+            Ok(lock) => lock,
+            Err(_) => return Err(RetrieveError::Unknown),
+        };
+
+        match lock.iter().find(|p| p.number == number).cloned() {
+            Some(pokemon) => Ok(pokemon),
+            None => Err(RetrieveError::NotFound),
+        }
     }
 }

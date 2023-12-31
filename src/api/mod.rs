@@ -4,6 +4,7 @@ use crate::repositories::pokemon::Repository;
 
 mod create_pokemon;
 mod fetch_all_pokemons;
+mod fetch_pokemon;
 mod health;
 
 pub fn serve(url: &str, repo: Arc<dyn Repository>) {
@@ -17,6 +18,9 @@ pub fn serve(url: &str, repo: Arc<dyn Repository>) {
             },
             (GET) (/) => {
                 fetch_all_pokemons::serve(repo.clone())
+            },
+            (GET) (/{number: u16}) => {
+                fetch_pokemon::serve(repo.clone(), number)
             },
             _ => {
                 rouille::Response::from(Status::NotFound)
