@@ -1,12 +1,16 @@
 use crate::domain::entities::PokemonType::{Electric, Fire};
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, PartialOrd, Eq, Ord)]
 pub struct PokemonNumber(u16);
 
 #[cfg(test)]
 impl PokemonNumber {
     pub fn pikachu() -> Self {
         Self(25)
+    }
+
+    pub fn charmander() -> Self {
+        Self(4)
     }
 }
 

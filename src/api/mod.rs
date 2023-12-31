@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::repositories::pokemon::Repository;
 
 mod create_pokemon;
+mod fetch_all_pokemons;
 mod health;
 
 pub fn serve(url: &str, repo: Arc<dyn Repository>) {
@@ -13,6 +14,9 @@ pub fn serve(url: &str, repo: Arc<dyn Repository>) {
             },
             (POST) (/) => {
               create_pokemon::serve(repo.clone(), req)
+            },
+            (GET) (/) => {
+                fetch_all_pokemons::serve(repo.clone())
             },
             _ => {
                 rouille::Response::from(Status::NotFound)
