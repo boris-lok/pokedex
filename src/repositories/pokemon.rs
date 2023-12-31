@@ -16,6 +16,11 @@ pub enum RetrieveError {
     NotFound,
 }
 
+pub enum DeleteError {
+    Unknown,
+    NotFound,
+}
+
 pub trait Repository: Send + Sync {
     fn insert(
         &self,
@@ -27,6 +32,8 @@ pub trait Repository: Send + Sync {
     fn fetch_all(&self) -> Result<Vec<Pokemon>, RetrieveAllError>;
 
     fn fetch_one(&self, number: PokemonNumber) -> Result<Pokemon, RetrieveError>;
+
+    fn delete_pokemon(&self, number: PokemonNumber) -> Result<(), DeleteError>;
 }
 
 pub struct InMemoryRepository {
@@ -105,6 +112,25 @@ impl Repository for InMemoryRepository {
         match lock.iter().find(|p| p.number == number).cloned() {
             Some(pokemon) => Ok(pokemon),
             None => Err(RetrieveError::NotFound),
+        }
+    }
+
+    fn delete_pokemon(&self, number: PokemonNumber) -> Result<(), DeleteError> {
+        if self.error {
+            return Err(DeleteError::Unknown);
+        }
+
+        let mut lock = match self.data.lock() {
+            Ok(lock) => lock,
+            Err(_) => return Err(DeleteError::Unknown),
+        };
+
+        match lock.iter().position(|p| p.number == number) {
+            Some(index) => {
+                lock.remove(index);
+                Ok(())
+            }
+            None => Err(DeleteError::NotFound),
         }
     }
 }
