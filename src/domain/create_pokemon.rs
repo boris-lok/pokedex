@@ -15,6 +15,7 @@ pub enum Error {
     Unknown,
 }
 
+#[derive(Debug)]
 pub struct InsertResponse {
     pub number: u16,
     pub name: String,
